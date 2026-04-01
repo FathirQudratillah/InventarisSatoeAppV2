@@ -12,7 +12,7 @@ class DataAngkatanController extends Controller
 {
     public function index()
     {
-        $angkatans = DataAngkatan::All();
+        $angkatans = DataAngkatan::orderBy('angkatan')->get();
         return view('data-angkatan.index', compact('angkatans'));
     }
 
@@ -81,21 +81,21 @@ class DataAngkatanController extends Controller
                 'string',
                 'max:2',
                 Rule::unique('data_angkatan', 'angkatan')
-                    ->ignore($dataAngkatan->id_angkatan, 'id_angkatan'),
+                    ->ignore($id, 'angkatan'),
             ],
 
             'tahun_masuk' => [
                 'required',
                 'digits:4',
                 Rule::unique('data_angkatan', 'tahun_masuk')
-                    ->ignore($dataAngkatan->id_angkatan, 'id_angkatan'),
+                    ->ignore($id, 'angkatan'),
             ],
 
             'tahun_lulus' => [
                 'required',
                 'digits:4',
                 Rule::unique('data_angkatan', 'tahun_lulus')
-                    ->ignore($dataAngkatan->id_angkatan, 'id_angkatan'),
+                    ->ignore($id, 'angkatan'),
             ],
         ], [
             'angkatan.required' => 'Angkatan wajib diisi.',

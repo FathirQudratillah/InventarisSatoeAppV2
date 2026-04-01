@@ -13,19 +13,22 @@ class DataJenisBarangController extends Controller
 {
     public function index()
     {
-        $jenisBarangs = DataJenisBarang::All();
-        return view('data-jenis-barang.index', compact('jenisBarangs'));
-    }
+        $jenisBarangs = DataJenisBarang::orderBy('id_kategori')->orderBy('jenis_barang')->get();
+        return response()->json([
+            'jenisBarangs' => $jenisBarangs,
+        ]);    }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $jenis_barang = DataJenisBarang::All();
-        $id_kategori = DataKategoriBarang::All();
-        return view('data-jenis-barang.create', compact('jenis_barang', 'id_kategori'));
-    }
+        $jenis_barang = DataJenisBarang::select('jenis_barang')->get();
+        $id_kategori = DataKategoriBarang::select('id_kategori')->get();
+        return response()->json([
+            'jenis_barang' => $jenis_barang,
+            'id_kategori' => $id_kategori,
+        ]);    }
 
     /**
      * Store a newly created resource in storage.
@@ -81,9 +84,13 @@ class DataJenisBarangController extends Controller
             $jenis_barang->keterangan = $request->keterangan;
             $jenis_barang->save();
 
-            return redirect()->route('data-jenis-barang.index')->with('success', 'Data jenis barang berhasil ditambahkan!');
+            return response()->json([
+                'message' => 'Data jenis barang berhasil ditambahkan!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menambahkan data jenis barang!')->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data jenis barang!',
+            ]);
         }
     }
 
@@ -94,8 +101,10 @@ class DataJenisBarangController extends Controller
     public function edit(string $jenis_barang)
     {
         $jenis_barang = DataJenisBarang::findOrFail($jenis_barang);
-        $id_kategori = DataKategoriBarang::All();
-        return view('data-jenis-barang.edit', compact('jenis_barang', 'id_kategori'));
+        return response()->json([
+            
+            'jenis_barang' => $jenis_barang,
+        ]);
     }
 
     /**
@@ -104,42 +113,6 @@ class DataJenisBarangController extends Controller
     public function update(Request $request, string $id)
     {
 
-
-        $request->validate([
-            'angkatan' => [
-                'required',
-                'string',
-                'max:2',
-                Rule::unique('data_angkatan', 'angkatan')
-                    ->ignore($dataAngkatan->id_angkatan, 'id_angkatan'),
-            ],
-
-            'tahun_masuk' => [
-                'required',
-                'digits:4',
-                Rule::unique('data_angkatan', 'tahun_masuk')
-                    ->ignore($dataAngkatan->id_angkatan, 'id_angkatan'),
-            ],
-
-            'tahun_lulus' => [
-                'required',
-                'digits:4',
-                Rule::unique('data_angkatan', 'tahun_lulus')
-                    ->ignore($dataAngkatan->id_angkatan, 'id_angkatan'),
-            ],
-        ], [
-            'angkatan.required' => 'Angkatan wajib diisi.',
-            'angkatan.max'      => 'Angkatan maksimal 2 huruf.',
-            'angkatan.unique'   => 'Angkatan sudah terdaftar.',
-
-            'tahun_masuk.required' => 'Tahun masuk wajib diisi.',
-            'tahun_masuk.digits'   => 'Tahun masuk harus 4 digit.',
-            'tahun_masuk.unique'   => 'Tahun masuk sudah terdaftar.',
-
-            'tahun_lulus.required' => 'Tahun lulus wajib diisi.',
-            'tahun_lulus.digits'   => 'Tahun lulus harus 4 digit.',
-            'tahun_lulus.unique'   => 'Tahun lulus sudah terdaftar.',
-        ]);
         try {
             $jenis_barang = DataJenisBarang::findOrFail($id);
 
@@ -151,10 +124,14 @@ class DataJenisBarangController extends Controller
             $jenis_barang->keterangan = $request->keterangan;
             $jenis_barang->save();
 
-            return redirect()->route('data-jenis-barang.index')->with('success', 'Data jenis barang berhasil diperbarui!');
+            return response()->json([
+                'message' => 'Data jenis barang berhasil diperbarui!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data jenis barang!')->withInput();
-        }
+            return response()->json([
+                'message' => 'Gagal memperbarui data jenis barang!',
+            ]);
+        }  
     }
 
     /**
@@ -165,9 +142,13 @@ class DataJenisBarangController extends Controller
         try {
             $jenis_barang = DataJenisBarang::findOrFail($jenis_barang);
             $jenis_barang->delete();
-            return redirect()->route('data-jenis-barang.index')->with('success', 'Data jenis barang berhasil dihapus!');
+            return response()->json([
+                'message' => 'Data jenis barang berhasil dihapus!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus data jenis barang!');
+            return response()->json([
+                'message' => 'Gagal menghapus data jenis barang!',
+            ]);
         }
     }
 }

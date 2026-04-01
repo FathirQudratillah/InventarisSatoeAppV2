@@ -12,8 +12,10 @@ class DataJurusanController extends Controller
 {
     public function index()
     {
-        $jurusans = DataJurusan::All();
-        return view('data-jurusan.index', compact('jurusans'));
+        $jurusans = DataJurusan::orderBy('id_jurusan')->get();
+        return response()->json([
+            'jurusans' => $jurusans,
+        ]);
     }
 
     /**
@@ -47,9 +49,13 @@ class DataJurusanController extends Controller
             $jurusan->jurusan = $request->jurusan;
             $jurusan->save();
 
-            return redirect()->route('data-jurusan.index')->with('success', 'Data jurusan berhasil ditambahkan!');
+            return response()->json([
+                'message' => 'Data jurusan berhasil ditambahkan!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menambahkan data jurusan!')->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data jurusan!',
+            ]);
         }
     }
 
@@ -61,7 +67,9 @@ class DataJurusanController extends Controller
     public function edit(string $id_jurusan)
     {
         $jurusan = DataJurusan::findOrFail($id_jurusan);
-        return view('data-jurusan.edit', compact('jurusan'));
+        return response()->json([
+            'jurusan' => $jurusan,
+        ]);
     }
 
     /**
@@ -76,13 +84,13 @@ class DataJurusanController extends Controller
                 'required',
                 'max:3',
                 Rule::unique('data_jurusan', 'id_jurusan')
-                    ->ignore($dataJurusan->id_jurusan, 'id_jurusan'),
+                    ->ignore($id, 'id_jurusan'),
             ],
 
             'jurusan' => [
                 'required',
                 Rule::unique('data_jurusan', 'jurusan')
-                    ->ignore($dataJurusan->id_jurusan, 'id_jurusan'),
+                    ->ignore($id, 'id_jurusan'),
             ],
         ], [
             'id_jurusan.required' => 'Id Jurusan wajib diisi.',
@@ -101,10 +109,15 @@ class DataJurusanController extends Controller
             $jurusan->jurusan = $request->jurusan;
             $jurusan->save();
 
-            return redirect()->route('data-jurusan.index')->with('success', 'Data jurusan berhasil diperbarui!');
+            return response()->json([
+                'message' => 'Data jurusan berhasil diperbarui!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data jurusan!')->withInput();
+            return response()->json([
+                'message' => 'Gagal memperbarui data jurusan!',
+            ]);
         }
+        
     }
 
     /**
@@ -115,9 +128,13 @@ class DataJurusanController extends Controller
         try {
             $jurusan = DataJurusan::findOrFail($id_jurusan);
             $jurusan->delete();
-            return redirect()->route('data-jurusan.index')->with('success', 'Data jurusan berhasil dihapus!');
+            return response()->json([
+                'message' => 'Data jurusan berhasil dihapus!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus data jurusan!');
+            return response()->json([
+                'message' => 'Gagal menghapus data jurusan!',
+            ]);
         }
     }
 }

@@ -11,9 +11,10 @@ class DataKategoriBarangController extends Controller
 {
     public function index()
     {
-        $kategoriBarangs = DataKategoriBarang::All();
-        return view('data-kategori-barang.index', compact('kategoriBarangs'));
-    }
+        $kategoriBarangs = DataKategoriBarang::orderBy('id_kategori')->get();
+        return response()->json([
+            'kategoriBarangs' => $kategoriBarangs,
+        ]);    }
 
     /**
      * Show the form for creating a new resource.
@@ -57,9 +58,13 @@ class DataKategoriBarangController extends Controller
             $kategori_barang->kategori = $request->kategori;
             $kategori_barang->save();
 
-            return redirect()->route('data-kategori-barang.index')->with('success', 'Data kategori barang berhasil ditambahkan!');
+            return response()->json([
+                'message' => 'Data kategori barang berhasil ditambahkan!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menambahkan data kategori barang!')->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data kategori barang!',
+            ]);
         }
     }
 
@@ -71,8 +76,9 @@ class DataKategoriBarangController extends Controller
     public function edit(string $id_kategori)
     {
         $kategori_barang = DataKategoriBarang::findOrFail($id_kategori);
-        return view('data-kategori-barang.edit', compact('kategori_barang'));
-    }
+        return response()->json([
+            'kategori_barang' => $kategori_barang,
+        ]);    }
 
     /**
      * Update the specified resource in storage.
@@ -85,7 +91,7 @@ class DataKategoriBarangController extends Controller
                 'string',
                 'max:3',
                 Rule::unique('data_kategori_barang', 'id_kategori')
-                    ->ignore($dataKategoriBarang->id_kategori, 'id_kategori'),
+                    ->ignore($id, 'id_kategori'),
             ],
 
             'kategori' => [
@@ -93,7 +99,7 @@ class DataKategoriBarangController extends Controller
                 'string',
                 'max:100',
                 Rule::unique('data_kategori_barang', 'kategori')
-                    ->ignore($dataKategoriBarang->id_kategori, 'id_kategori'),
+                    ->ignore($id, 'id_kategori'),
             ],
         ], [
             'id_kategori.required' => 'ID kategori wajib diisi.',
@@ -116,9 +122,13 @@ class DataKategoriBarangController extends Controller
             $kategori_barang->kategori = $request->kategori;
             $kategori_barang->save();
 
-            return redirect()->route('data-kategori-barang.index')->with('success', 'Data kategori barang berhasil diperbarui!');
+            return response()->json([
+                'message' => 'Data kategori barang berhasil diperbarui!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data kategori barang!')->withInput();
+            return response()->json([
+                'message' => 'Gagal memperbarui data kategori barang!',
+            ]);
         }
     }
 
@@ -130,9 +140,13 @@ class DataKategoriBarangController extends Controller
         try {
             $kategori_barang = DataKategoriBarang::findOrFail($id_kategori);
             $kategori_barang->delete();
-            return redirect()->route('data-kategori-barang.index')->with('success', 'Data kategori barang berhasil dihapus!');
+            return response()->json([
+                'message' => 'Data kategori barang berhasil dihapus!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus data kategori barang!');
+            return response()->json([
+                'message' => 'Gagal menghapus data kategori barang!',
+            ]);
         }
     }
 }

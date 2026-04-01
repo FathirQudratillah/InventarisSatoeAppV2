@@ -13,8 +13,10 @@ class DataBarangController extends Controller
 {
     public function index()
     {
-        $barangs = DataBarang::All();
-        return view('data-barang.index', compact('barangs'));
+        $barangs = DataBarang::orderBy('jenis_barang')->orderBy('kode_barang')->get();
+        return response()->json([
+            'barangs' => $barangs,
+        ]);
     }
 
     /**
@@ -22,9 +24,12 @@ class DataBarangController extends Controller
      */
     public function create()
     {
-        $jenis_barang = DataJenisBarang::All();
-        $id_ruang = DataRuang::All();
-        return view('data-barang.create', compact('jenis_barang', 'id_ruang'));
+        $jenis_barang = DataJenisBarang::select('jenis_barang')->get();
+        $id_ruang = DataRuang::select('id_ruang')->get();
+        return response()->json([
+            'jenis_barang' => $jenis_barang,
+            'id_ruang' => $id_ruang,
+        ]);
     }
 
     /**
@@ -84,9 +89,13 @@ class DataBarangController extends Controller
             $barang->keterangan = $request->keterangan;
             $barang->save();
 
-            return redirect()->route('data-barang.index')->with('success', 'Data barang berhasil ditambahkan!');
+            return response()->json([
+                'message' => 'Data barang berhasil ditambahkan!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menambahkan data barang!')->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data barang!',
+            ]);
         }
     }
 
@@ -97,9 +106,13 @@ class DataBarangController extends Controller
     public function edit(string $kodeBarang)
     {
         $barang = DataBarang::findOrFail($kodeBarang);
-        $jenis_barang = DataJenisBarang::All();
-        $id_ruang = DataRuang::All();
-        return view('data-barang.edit', compact('barang', 'jenis_barang', 'id_ruang'));
+        $jenis_barang = DataJenisBarang::select('jenis_barang')->get();
+        $id_ruang = DataRuang::select('id_ruang')->get();
+        return response()->json([
+            'barang' => $barang,
+            'jenis_barang' => $jenis_barang,
+            'id_ruang' => $id_ruang,
+        ]);
     }
 
     /**
@@ -141,9 +154,13 @@ class DataBarangController extends Controller
             $barang->keterangan = $request->keterangan;
             $barang->save();
 
-            return redirect()->route('data-barang.index')->with('success', 'Data barang berhasil diperbarui!');
+            return response()->json([
+                'message' => 'Data barang berhasil diperbarui!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data barang!')->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data barang!',
+            ]);
         }
     }
 
@@ -155,9 +172,13 @@ class DataBarangController extends Controller
         try {
             $barang = DataBarang::findOrFail($kodeBarang);
             $barang->delete();
-            return redirect()->route('data-barang.index')->with('success', 'Data barang berhasil dihapus!');
+            return response()->json([
+                'message' => 'Data barang berhasil dihapus!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus data barang!');
+            return response()->json([
+                'message' => 'Gagal menghapus data barang!',
+            ]);
         }
     }
 }

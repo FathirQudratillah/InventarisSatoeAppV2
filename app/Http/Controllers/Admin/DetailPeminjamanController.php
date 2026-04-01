@@ -12,8 +12,9 @@ class DetailPeminjamanController extends Controller
     public function index()
     {
         $detailPeminjamans = DetailPeminjaman::All();
-        return view('detail-peminjaman.index', compact('detailPeminjamans'));
-    }
+        return response()->json([
+            'detailPeminjamans' => $detailPeminjamans,
+        ]);    }
 
     
 }
