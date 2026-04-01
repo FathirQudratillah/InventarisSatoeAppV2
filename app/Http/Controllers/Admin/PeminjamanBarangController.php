@@ -14,8 +14,9 @@ class PeminjamanBarangController extends Controller
     public function index()
     {
         $peminjamanBarangs = PeminjamanBarang::All();
-        return view('peminjaman-barang.index', compact('peminjamanBarangs'));
-    }
+        return response()->json([
+            'peminjamanBarangs' => $peminjamanBarangs,
+        ]);    }
 
     /**
      * Show the form for creating a new resource.
@@ -23,14 +24,16 @@ class PeminjamanBarangController extends Controller
     public function create()
     {
         $kode_barangs = DataBarang::all();
-        return view('peminjaman-barang.create', compact('kode_barangs'));
-    }
+        return response()->json([
+            'kode_barangs' => $kode_barangs,
+        ]);    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        
         $request->validate(
             [
                 'kode_barang'   => ['required', 'array', 'min:1'],
@@ -100,8 +103,9 @@ class PeminjamanBarangController extends Controller
             $no++;
         }
 
-        return redirect()->route('dashboard.user');
-    }
+        return response()->json([
+            'message' => 'Permintaan Peminjaman Berhasil, Menunggu Persetujuan Admin',
+        ]);    }
 
     /**
      * Display the specified resource.
@@ -114,7 +118,9 @@ class PeminjamanBarangController extends Controller
         $peminjaman->status_peminjaman = 'dipinjam';
         $peminjaman->save();
 
-        return back();
+        return response()->json([
+            'message' => 'Barang Berhasil Dipinjam',
+        ]);
     }
 
     public function back(string $id)
@@ -127,11 +133,14 @@ class PeminjamanBarangController extends Controller
                 'status_peminjaman' => 'menunggu_kembali'
             ]);
 
-            return redirect()->route('dashboard.user')
-                ->with('success', 'Menunggu persetujuan admin');
+            return response()->json([
+                'message' => 'Menunggu Persetujuan Admin',
+            ]);
         } catch (\Exception $e) {
 
-            return back()->with('error', 'Gagal mengirim pengembalian');
+            return response()->json([
+                'message' => 'Gagal Mengirim Pengembalian',
+            ]);
         }
     }
 
@@ -155,48 +164,16 @@ class PeminjamanBarangController extends Controller
                 }
             }
 
-            return back()->with('success', 'Barang berhasil dikembalikan');
+            return response()->json([
+                'message' => 'Barang Berhasil Dikembalikan',
+            ]);
         } catch (\Exception $e) {
 
-            return back()->with('error', 'Gagal menerima pengembalian');
+            return response()->json([
+                'message' => 'Gagal Menerima Pengembalian',
+            ]);
         }
     }
 
-    public function add($kode)
-    {
-        $barang = DataBarang::findOrFail($kode);
-
-        $cart = session()->get('cart', []);
-
-        if (isset($cart[$kode])) {
-            $cart[$kode]['qty']++;
-        } else {
-            $cart[$kode] = [
-                'nama' => $barang->dataBarang->nama_barang,
-                'qty' => 1
-            ];
-        }
-
-        session()->put('cart', $cart);
-
-        return back();
-    }
-
-    public function remove($kode)
-    {
-        $barang = DataBarang::findOrFail($kode);
-
-        $cart = session()->get('cart', []);
-
-        if (isset($cart[$kode])) {
-            $cart[$kode]['qty']--;
-            if ($cart[$kode]['qty'] <= 0) {
-                unset($cart[$kode]);
-            }
-            session()->put('cart', $cart);
-        }
-
-
-        return back();
-    }
+    
 }

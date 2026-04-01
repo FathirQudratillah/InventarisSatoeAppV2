@@ -17,16 +17,19 @@ class PemeliharaanBarangController extends Controller
             ->orderBy('tanggal_pemeliharaan', 'desc')
             ->get();
 
-        return view('pemeliharaan-barang.index', compact('pemeliharaanBarangs'));
-    }
+        return response()->json([
+            'pemeliharaanBarangs' => $pemeliharaanBarangs,
+        ]);    }
 
     public function create()
     {
-        $kode_barang = DataBarang::orderBy('kode_barang')->get();
-        $id_pj = DataPenanggungJawab::orderBy('nama')->get();
+        $kode_barang = DataBarang::select('kode_barang')->orderBy('kode_barang')->get();
+        $id_pj = DataPenanggungJawab::select('id_pj','nama')->orderBy('nama')->get();
 
-        return view('pemeliharaan-barang.create', compact('kode_barang', 'id_pj'));
-    }
+        return response()->json([
+            'kode_barang' => $kode_barang,
+            'id_pj' => $id_pj,
+        ]);    }
 
     public function store(Request $request)
     {
@@ -63,7 +66,7 @@ class PemeliharaanBarangController extends Controller
                 $newNumber = 1;
             }
 
-            $formattedNumber = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+            $formattedNumber = str_pad($newNumber, 2, '0', STR_PAD_LEFT);
 
             PemeliharaanBarang::create([
                 'id_pemeliharaan' => 'PMH-' . $request->kode_barang . '-' . $formattedNumber,
@@ -76,26 +79,17 @@ class PemeliharaanBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('dashboard.admin')
-                ->with('success', 'Data pemeliharaan berhasil ditambahkan.');
+            return response()->json([
+                'message' => 'Data pemeliharran barang berhasil ditambahkan!',
+            ]);
         } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return back()
-                ->with('error', 'Terjadi kesalahan saat menyimpan data.')
-                ->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data pemeliharran barang!',
+                
+            ]);
         }
     }
 
-    public function edit($id)
-    {
-        $pemeliharaan = PemeliharaanBarang::findOrFail($id);
-        $barang = DataBarang::orderBy('kode_barang')->get();
-        $penanggungJawab = DataPenanggungJawab::orderBy('nama')->get();
-
-        return view('pemeliharaan-barang.edit', compact('pemeliharaan', 'barang', 'penanggungJawab'));
-    }
 
   
    
@@ -107,12 +101,13 @@ class PemeliharaanBarangController extends Controller
             $pemeliharaan = PemeliharaanBarang::findOrFail($id);
             $pemeliharaan->delete();
 
-            return redirect()->route('dashboard.admin')
-                ->with('success', 'Data pemeliharaan berhasil dihapus.');
+            return response()->json([
+                'message' => 'Data pemeliharran barang berhasil dihapus!',
+            ]);
         } catch (\Exception $e) {
-
-            return back()
-                ->with('error', 'Terjadi kesalahan saat menghapus data.');
+            return response()->json([
+                'message' => 'Gagal menghapus data pemeliharran barang!',
+            ]);
         }
     }
 }

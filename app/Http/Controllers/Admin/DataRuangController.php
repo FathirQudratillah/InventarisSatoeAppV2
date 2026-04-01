@@ -12,8 +12,10 @@ class DataRuangController extends Controller
 {
     public function index()
     {
-        $ruangs = DataRuang::All();
-        return view('data-ruang.index', compact('ruangs'));
+        $ruangs = DataRuang::orderBy('jenis_ruang')->orderBy('id_ruang')->get();
+        return response()->json([
+            'ruangs' => $ruangs,
+        ]);
     }
 
     /**
@@ -59,9 +61,13 @@ class DataRuangController extends Controller
             $ruang->lokasi = $request->lokasi;
             $ruang->save();
 
-            return redirect()->route('data-ruang.index')->with('success', 'Data ruang berhasil ditambahkan!');
+            return response()->json([
+                'message' => 'Data ruang berhasil ditambahkan!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menambahkan data ruang!')->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data ruang!',
+            ]);
         }
     }
 
@@ -73,8 +79,9 @@ class DataRuangController extends Controller
     public function edit(string $id_ruang)
     {
         $ruang = DataRuang::findOrFail($id_ruang);
-        return view('data-ruang.edit', compact('ruang'));
-    }
+        return response()->json([
+            'ruang' => $ruang,
+        ]);    }
 
     /**
      * Update the specified resource in storage.
@@ -124,9 +131,13 @@ class DataRuangController extends Controller
             $ruang->lokasi = $request->lokasi;
             $ruang->save();
 
-            return redirect()->route('data-ruang.index')->with('success', 'Data ruang berhasil diperbarui!');
+            return response()->json([
+                'message' => 'Data ruang berhasil diperbarui!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data ruang!')->withInput();
+            return response()->json([
+                'message' => 'Gagal memperbarui data ruang!',
+            ]);
         }
     }
 
@@ -138,9 +149,13 @@ class DataRuangController extends Controller
         try {
             $ruang = DataRuang::findOrFail($id_ruang);
             $ruang->delete();
-            return redirect()->route('data-ruang.index')->with('success', 'Data ruang berhasil dihapus!');
+            return response()->json([
+                'message' => 'Data ruang berhasil dihapus!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus data ruang!');
+            return response()->json([
+                'message' => 'Gagal menghapus data ruang!',
+            ]);
         }
     }
 }

@@ -11,8 +11,10 @@ class DataPenanggungJawabController extends Controller
 {
     public function index()
     {
-        $penanggungJawabs = DataPenanggungJawab::All();
-        return view('data-penanggung-jawab.index', compact('penanggungJawabs'));
+        $penanggungJawabs = DataPenanggungJawab::orderBy('id_pj')->get();
+        return response()->json([
+            'penanggungJawabs' => $penanggungJawabs,
+        ]);
     }
 
     /**
@@ -58,12 +60,13 @@ class DataPenanggungJawabController extends Controller
                 'no_kontak' => $request->no_kontak,
             ]);
 
-            return redirect()->route('data-penanggung-jawab.index')
-                ->with('success', 'Data penanggung jawab berhasil ditambahkan!');
+            return response()->json([
+                'message' => 'Data penanggung jawab berhasil ditambahkan!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal menambahkan data penanggung jawab!')
-                ->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data penanggung jawab!',
+            ]);
         }
     }
 
@@ -75,8 +78,9 @@ class DataPenanggungJawabController extends Controller
     public function edit(string $id_pj)
     {
         $penanggung_jawab = DataPenanggungJawab::findOrFail($id_pj);
-        return view('data-penanggung-jawab.edit', compact('penanggung_jawab'));
-    }
+        return response()->json([
+            'penanggung_jawab' => $penanggung_jawab,
+        ]);    }
 
     /**
      * Update the specified resource in storage.
@@ -90,7 +94,7 @@ class DataPenanggungJawabController extends Controller
             'no_kontak' => [
                 'required',
                 Rule::unique('data_penanggung_jawab', 'no_kontak')
-                    ->ignore($penanggungJawab->id, 'id')
+                    ->ignore($id, 'id_pj')
             ],
         ], [
             'nama.required'              => 'Nama wajib diisi.',
@@ -109,9 +113,13 @@ class DataPenanggungJawabController extends Controller
             $penanggung_jawab->no_kontak = $request->no_kontak;
             $penanggung_jawab->save();
 
-            return redirect()->route('data-penanggung-jawab.index')->with('success', 'Data penanggung jawab berhasil diperbarui!');
+            return response()->json([
+                'message' => 'Data penanggung jawab berhasil diperbarui!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data penanggung jawab!')->withInput();
+            return response()->json([
+                'message' => 'Gagal memperbarui data penanggung jawab!',
+            ]);
         }
     }
 
@@ -123,9 +131,13 @@ class DataPenanggungJawabController extends Controller
         try {
             $penanggung_jawab = DataPenanggungJawab::findOrFail($id_pj);
             $penanggung_jawab->delete();
-            return redirect()->route('data-penanggung-jawab.index')->with('success', 'Data penanggung jawab berhasil dihapus!');
+            return response()->json([
+                'message' => 'Data penanggung jawab berhasil dihapus!',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus data penanggung jawab!');
+            return response()->json([
+                'message' => 'Gagal menghapus data penanggung jawab!',
+            ]);
         }
     }
 }

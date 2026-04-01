@@ -115,7 +115,7 @@ Route::middleware(['auth', 'role:admin'])
 
 Route::middleware(['auth', 'role:siswa,guru'])
 ->group(function () {
-    Route::get('/user', [DashboardController::class, 'index'])->name('dashboard.user');
+        Route::get('/user', [DashboardController::class, 'index'])->name('dashboard.user');
         Route::get('/peminjaman-barang.create', [PeminjamanBarangController::class, 'create'])->name('user.peminjaman-barang.create');
         Route::post('/peminjaman-barang.store', [PeminjamanBarangController::class, 'store'])->name('user.peminjaman-barang.store');
         route::get('/peminjaman/{id}/back', [PeminjamanBarangController::class, 'back'])

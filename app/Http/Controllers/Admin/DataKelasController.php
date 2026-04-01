@@ -17,17 +17,22 @@ class DataKelasController extends Controller
         $akun = DataKelas::orderBy('angkatan', 'desc')
             ->orderBy('id_jurusan')
             ->orderBy('subkelas')->get();
-        return view('data-kelas.index', compact('akun'));
+        return response()->json([
+            'akun' => $akun,
+        ]);
     }
 
     public function create()
     {
-        $angkatan = DataAngkatan::all();
-        $id_jurusan = DataJurusan::all();
-        return view('data-kelas.create', compact('angkatan', 'id_jurusan'));
+        $angkatan = DataAngkatan::select('angkatan')->get();
+        $id_jurusan = DataJurusan::select('id_jurusan')->get();
+        return response()->json([
+            'angkatan' => $angkatan,
+            'id_jurusan' => $id_jurusan,
+        ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         try {
             $id_kelas = $request->angkatan . $request->id_jurusan . $request->subkelas;
@@ -46,9 +51,13 @@ class DataKelasController extends Controller
             $kelas->subkelas = $request->subkelas;
             $kelas->save();
 
-            return redirect()->route('data-kelas.index')->with('success', 'Data kelas berhasil ditambahkan!');
+            return response()->json([
+                'message' => 'Data kelas berhasil ditambahkan!'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menambahkan data kelas!')->withInput();
+            return response()->json([
+                'message' => 'Gagal menambahkan data kelas!'
+            ]);
         }
     }
 
@@ -57,10 +66,14 @@ class DataKelasController extends Controller
         $kelas = DataKelas::findOrFail($id_kelas);
         $angkatan = DataAngkatan::all();
         $id_jurusan = DataJurusan::all();
-        return view('data-kelas.edit', compact('kelas', 'angkatan', 'id_jurusan'));
+        return response()->json([
+            'kelas' => $kelas,
+            'angkatan' => $angkatan,
+            'id_jurusan' => $id_jurusan,
+        ]);
     }
 
-    public function update(Request $request, string $id_kelas): RedirectResponse
+    public function update(Request $request, string $id_kelas)
     {
         try {
             $kelas = DataKelas::findOrFail($id_kelas);
@@ -68,10 +81,13 @@ class DataKelasController extends Controller
             $kelas->update([
                 'kelas' => $request->kelas,
             ]);
-
-            return redirect()->route('data-kelas.index')->with('success', 'Data kelas berhasil diperbarui!');
+            return response()->json([
+                'message' => 'Data kelas berhasil diperbarui!'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data kelas!')->withInput();
+            return response()->json([
+                'message' => 'Gagal memperbarui data kelas!'
+            ]);
         }
     }
 
@@ -81,9 +97,13 @@ class DataKelasController extends Controller
             $kelas = DataKelas::findOrFail($id_kelas);
             $kelas->delete();
 
-            return redirect()->route('data-kelas.index')->with('success', 'Data kelas berhasil dihapus!');
+            return response()->json([
+                'message' => 'Data kelas berhasil dihapus!'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus data kelas!');
+            return response()->json([
+                'message' => 'Gagal menghapus data kelas!'
+            ]);
         }
     }
 }
