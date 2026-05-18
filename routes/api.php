@@ -53,11 +53,20 @@ Route::middleware('auth:sanctum', 'role:admin')->group(function() {
 
     Route::resource('detail-peminjaman', DetailPeminjamanController::class);//tested
 
-    Route::resource('data-penanggung-jawab', DataPenanggungJawabController::class);//tested
+    Route::resource('data-penanggung-jawab', DataPenanggungJawabController::class); //tested
+
+    Route::get('/peminjaman/{id}/accept', [PeminjamanBarangController::class, 'accept'])
+        ->name('peminjaman-barang.accept');
+
+    Route::post('/peminjaman/{id}/kembalikan', [PeminjamanBarangController::class, 'kembalikan'])
+        ->name('peminjaman-barang.kembalikan');
 });
 
 Route::middleware('auth:sanctum', 'role:siswa,guru')->group(function() {
     Route::get('/user', [DashboardController::class, 'index'])->name('dashboard.user');
+    route::get('/peminjaman/{id}/back', [PeminjamanBarangController::class, 'back'])
+        ->name('peminjaman-barang.back');
+    Route::post('/peminjaman-barang.store', [PeminjamanBarangController::class, 'store'])->name('user.peminjaman-barang.store');
 });
 
 

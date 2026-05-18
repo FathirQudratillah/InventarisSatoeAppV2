@@ -43,6 +43,7 @@ class DataBarangController extends Controller
             'kondisi_barang'   => 'required|in:Baik,Rusak,Rusak Ringan',
             'tahun_perolehan'  => 'required|digits:4|integer|min:1900|max:' . date('Y'),
             'keterangan'       => 'nullable|string|max:255',
+            'img'              => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ], [
             'id_ruang.required'        => 'Ruang wajib dipilih.',
             'id_ruang.exists'          => 'Ruang tidak valid.',
@@ -60,6 +61,8 @@ class DataBarangController extends Controller
             'tahun_perolehan.max'      => 'Tahun perolehan tidak boleh melebihi tahun sekarang.',
 
             'keterangan.max'           => 'Keterangan maksimal 255 karakter.',
+            'img.mimes'                => 'Format tidak di dukung',
+            'img.max'                  => 'Ukuran file max 2MB',
         ]);
 
         try {
@@ -79,6 +82,7 @@ class DataBarangController extends Controller
             }
 
             $kodeBarang = $jenis . '-' . $newNumber;
+            $imagePath = $request->file('img')->store('posts', 'public');
 
             $barang = new DataBarang;
             $barang->kode_barang = $kodeBarang;
@@ -87,6 +91,7 @@ class DataBarangController extends Controller
             $barang->kondisi_barang = $request->kondisi_barang;
             $barang->tahun_perolehan = $request->tahun_perolehan;
             $barang->keterangan = $request->keterangan;
+            $barang->img = $imagePath;
             $barang->save();
 
             return response()->json([

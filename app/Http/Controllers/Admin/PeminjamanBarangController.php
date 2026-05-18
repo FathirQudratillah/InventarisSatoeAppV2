@@ -33,11 +33,14 @@ class PeminjamanBarangController extends Controller
      */
     public function store(Request $request)
     {
+        // return response()->json([
+        //     $request->kode_barang[0]["kode_barang"]
+        // ]);
         
         $request->validate(
             [
                 'kode_barang'   => ['required', 'array', 'min:1'],
-                'kode_barang.*' => ['required', 'exists:data_barang,kode_barang'],
+                'kode_barang.*.kode_barang' => ['required', 'exists:data_barang,kode_barang'],
 
             ],
             [
@@ -45,7 +48,7 @@ class PeminjamanBarangController extends Controller
                 'kode_barang.array'      => 'Format data barang tidak valid.',
                 'kode_barang.min'        => 'Minimal pilih 1 barang.',
                 'kode_barang.*.required' => 'Kode barang tidak boleh kosong.',
-                'kode_barang.*.exists'   => 'Kode barang :input tidak terdaftar di data barang.',
+                'kode_barang.*.exists'   => 'Kode barang :input tidak terdaftar di data barang .',
             ]
         );
         $date = str_replace('-', '', $request->tanggal_peminjaman);
@@ -56,13 +59,13 @@ class PeminjamanBarangController extends Controller
         // cek barang sedang dipinjam
         foreach ($kode_barangs as $kode_barang) {
 
-            $cek = DetailPeminjaman::where('kode_barang', $kode_barang)
+            $cek = DetailPeminjaman::where('kode_barang', $kode_barang["kode_barang"])->whereNull("kondisi_sesudah")
                 ->exists();
-
+ 
             if ($cek) {
-                return back()->withErrors([
-                    'kode_barang' => "Barang $kode_barang masih dipinjam"
-                ])->withInput();
+                return response()->json([
+                    'message' => 'Barang ' . $kode_barang["kode_barang"] . ' masih dipinjam'
+                ], 422);
             }
         }
 
@@ -90,13 +93,13 @@ class PeminjamanBarangController extends Controller
 
         foreach ($kode_barangs as $kode_barang) {
 
-            $barang = DataBarang::findOrFail($kode_barang);
+            $barang = DataBarang::findOrFail($kode_barang["kode_barang"]);
 
             $id_detail = 'DTL' . $id_peminjaman . str_pad($no, 2, '0', STR_PAD_LEFT);
 
             $peminjaman->detail()->create([
                 'id_detail' => $id_detail,
-                'kode_barang' => $kode_barang,
+                'kode_barang' => $kode_barang["kode_barang"],
                 'kondisi_sebelum' => $barang->kondisi_barang,
             ]);
 
@@ -144,7 +147,7 @@ class PeminjamanBarangController extends Controller
         }
     }
 
-    public function kembalikan(string $id)
+    public function kembalikan(string $id, Request $request)
     {
         try {
 
@@ -155,11 +158,15 @@ class PeminjamanBarangController extends Controller
             ]);
 
             foreach ($peminjaman->detail as $detail) {
+                $detail->update([
+                    'kondisi_sesudah'=> $request->kondisi_barang
+                ]);
 
                 if ($detail->barang) {
 
                     $detail->barang->update([
-                        'status_barang' => 'tersedia'
+                        'status_barang' => 'tersedia',
+                        'kondisi_barang' => $request->kondisi_barang
                     ]);
                 }
             }
