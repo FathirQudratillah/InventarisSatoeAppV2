@@ -93,15 +93,20 @@ class DashboardController extends Controller
     {
 
         return [
-            'peminjamanTerbaru'   => PeminjamanBarang::select('id_peminjaman', 'user_id', 'status_peminjaman', 'created_at')->latest()->take(5)->get(),
-            'pemeliharaanTerbaru' => PemeliharaanBarang::select('id_pj', 'kegiatan_pemeliharaan', 'created_at')->latest()->take(4)->get(),
-            
+            'peminjamanTerbaru'   => PeminjamanBarang::select('id_peminjaman', 'user_id', 'status_peminjaman', 'created_at')->with(['user:user_id', 'user.siswa:user_id,nama,id_kelas', 'user.guru:user_id,nama'])->latest()->take(5)->get(),
+            'pemeliharaanTerbaru' => PemeliharaanBarang::select('id_pj', 'kegiatan_pemeliharaan', 'kode_barang', 'created_at')
+                ->with([
+                    'penanggungjawab:id_pj,nama,nama_perusahaan',
+                    'barang:kode_barang,jenis_barang',
+                    'barang.jenis:jenis_barang,nama_barang,id_kategori',
+                    'barang.jenis.kategori:id_kategori,kategori'
+                ])->latest()->take(4)->get()
         ];
     }
 
     private function getBarangData()
     {
-        $barang = DataBarang::select('kode_barang', 'jenis_barang')->withCount([
+        $barang = DataBarang::select('kode_barang', 'jenis_barang', 'kondisi_barang')->withCount([
             'detail as dipinjam_count' => function ($q) {
                 $q->whereHas('peminjaman', function ($sub) {
                     $sub->where('status_peminjaman', 'dipinjam');
@@ -127,16 +132,30 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
-        $requestPeminjaman = PeminjamanBarang::select('id_peminjaman')->with(
-            'detail:id_peminjaman,kode_barang'
-        )
+        $requestPeminjaman = PeminjamanBarang::select('id_peminjaman', 'user_id')
+            ->with([
+                'user:user_id',
+                'user.siswa:user_id,nama,id_kelas',
+                'user.guru:user_id,nama',
+                'detail:id_peminjaman,kode_barang',
+                'detail.barang:kode_barang,jenis_barang',
+                'detail.barang.jenis:jenis_barang,nama_barang,id_kategori',
+                'detail.barang.jenis.kategori:id_kategori,kategori',
+            ])
             ->where('status_peminjaman', 'Pending')
             ->latest()
             ->get();
 
-        $requestPengembalian = PeminjamanBarang::select('id_peminjaman')->with(
-            'detail:id_peminjaman,kode_barang'
-        )
+        $requestPengembalian = PeminjamanBarang::select('id_peminjaman', 'user_id')
+            ->with([
+                'user:user_id',
+                'user.siswa:user_id,nama,id_kelas',
+                'user.guru:user_id,nama',
+                'detail:id_peminjaman,kode_barang',
+                'detail.barang:kode_barang,jenis_barang',
+                'detail.barang.jenis:jenis_barang,nama_barang,id_kategori',
+                'detail.barang.jenis.kategori:id_kategori,kategori',
+            ])
             ->where('status_peminjaman', 'menunggu_kembali')
             ->latest()
             ->get();
@@ -173,7 +192,7 @@ class DashboardController extends Controller
             'totalRiwayatUser' => PeminjamanBarang::where('user_id', $userId)->count(),
 
             'peminjamanTerbaru' => PeminjamanBarang::select('id_peminjaman', 'status_peminjaman','tanggal_pengembalian', 'created_at')
-                ->with(['detail:id_peminjaman,kode_barang', 'detail.barang:kode_barang,jenis_barang','detail.barang.jenis:jenis_barang,nama_barang'])
+                ->with(['detail:id_peminjaman,kode_barang', 'detail.barang:kode_barang,jenis_barang','detail.barang.jenis:jenis_barang,nama_barang,id_kategori', 'detail.barang.jenis.kategori:id_kategori,kategori'])
                 ->where('user_id', $userId)
                 ->latest()
                 ->limit(10)

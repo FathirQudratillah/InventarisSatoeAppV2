@@ -19,6 +19,7 @@ class DataBarang extends Model
                             'kondisi_barang',
                             'tahun_perolehan',
                             'keterangan',
+                            'img'
                             ];
 
     protected $primaryKey = 'kode_barang';
